@@ -1,5 +1,5 @@
 # qxmusic-master-Backend
-音乐播放器的后端部分，微信小程序部分请戳：https://github.com/Image-LY/qxmusic-master)https://github.com/Image-LY/qxmusic-master
+音乐播放器的后端部分，微信小程序部分请戳：https://github.com/Image-LY/qxmusic-master
 
 ## 项目介绍
 - 个人练手的项目，比较简陋，用于学习微信小程序开发
