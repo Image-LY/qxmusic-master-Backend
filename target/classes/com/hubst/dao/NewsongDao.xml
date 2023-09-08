@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hubst.dao.NewsongDao">
+
+    <resultMap type="com.hubst.entity.Newsong" id="NewsongMap">
+        <result property="typeid" column="typeid" jdbcType="INTEGER"/>
+        <result property="typename" column="typename" jdbcType="VARCHAR"/>
+        <result property="typeimgid" column="typeimgid" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="image.url" column="iurl"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="NewsongMap">
+        select
+          typeid, typename, typeimgid, state
+        from newsong
+        where typeid = #{typeid}
+    </select>
+
+    <select id="getAllListInfo" resultMap="NewsongMap">
+        select
+            typeid,typeimgid,ns.state,
+            i.url iurl
+        from newsong ns,music.image i
+        where typeimgid = i.id
+          and ns.state = '1'
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="NewsongMap">
+        select
+          typeid, typename, typeimgid, state
+        from newsong
+        <where>
+            <if test="typeid != null">
+                and typeid = #{typeid}
+            </if>
+            <if test="typename != null and typename != ''">
+                and typename = #{typename}
+            </if>
+            <if test="typeimgid != null and typeimgid != ''">
+                and typeimgid = #{typeimgid}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from newsong
+        <where>
+            <if test="typeid != null">
+                and typeid = #{typeid}
+            </if>
+            <if test="typename != null and typename != ''">
+                and typename = #{typename}
+            </if>
+            <if test="typeimgid != null and typeimgid != ''">
+                and typeimgid = #{typeimgid}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="typeid" useGeneratedKeys="true">
+        insert into newsong(typename, typeimgid, state)
+        values (#{typename}, #{typeimgid}, #{state})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="typeid" useGeneratedKeys="true">
+        insert into newsong(typename, typeimgid, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.typename}, #{entity.typeimgid}, #{entity.state})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="typeid" useGeneratedKeys="true">
+        insert into newsong(typename, typeimgid, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.typename}, #{entity.typeimgid}, #{entity.state})
+        </foreach>
+        on duplicate key update
+        typename = values(typename),
+        typeimgid = values(typeimgid),
+        state = values(state)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update newsong
+        <set>
+            <if test="typename != null and typename != ''">
+                typename = #{typename},
+            </if>
+            <if test="typeimgid != null and typeimgid != ''">
+                typeimgid = #{typeimgid},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+        </set>
+        where typeid = #{typeid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from newsong where typeid = #{typeid}
+    </delete>
+
+</mapper>
+

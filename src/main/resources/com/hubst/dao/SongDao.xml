@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hubst.dao.SongDao">
+
+    <resultMap type="com.hubst.entity.Song" id="SongMap">
+        <result property="songid" column="songid" jdbcType="INTEGER"/>
+        <result property="songurl" column="songurl" jdbcType="VARCHAR"/>
+        <result property="singer" column="singer" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="imageid" column="imageid" jdbcType="INTEGER"/>
+        <result property="songlisttype" column="songlisttype" jdbcType="INTEGER"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="image.url" column="iurl"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SongMap">
+        select
+          songid, songurl, singer, name, imageid, songlisttype, state
+        from song
+        where songid = #{songid}
+    </select>
+
+    <!--多表联合查询首页歌曲信息-->
+    <select id="getIndexSongInfo" resultMap="SongMap">
+        select
+            songid,songurl,singer,name,imageid,
+            i.url iurl
+        from song s,image i
+        where s.imageid = i.id
+          and s.songid &lt;= 6
+          and s.state = '1'
+    </select>
+
+    <!--多表联合查询全部歌曲信息-->
+    <select id="getAllSongInfo" resultMap="SongMap">
+        select
+            songid,songurl,singer,name,imageid,
+            i.url iurl
+        from song s,image i
+        where s.imageid = i.id
+          and  songid >= 101
+          and s.state = '1'
+    </select>
+
+    <!--多表联合查询对应歌单歌曲信息-->
+    <select id="querySongsByListId" resultMap="SongMap">
+        select
+            songid,songurl,singer,name,imageid,
+            i.url iurl
+            from song s,music.image i
+            where s.songlisttype = #{id}
+            and s.imageid = i.id
+    </select>
+
+    <!--查询对应id歌曲信息-->
+    <select id="querySongsById" resultMap="SongMap">
+        select
+            songid,songurl,singer,name,imageid,
+            i.url iurl
+        from song s,music.image i
+        where songid = #{id}
+          and s.imageid = i.id
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SongMap">
+        select
+          songid, songurl, singer, name, imageid, songlisttype, state
+        from song
+        <where>
+            <if test="songid != null">
+                and songid = #{songid}
+            </if>
+            <if test="songurl != null and songurl != ''">
+                and songurl = #{songurl}
+            </if>
+            <if test="singer != null and singer != ''">
+                and singer = #{singer}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="imageid != null">
+                and imageid = #{imageid}
+            </if>
+            <if test="songlisttype != null and songlisttype != ''">
+                and songlisttype = #{songlisttype}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from song
+        <where>
+            <if test="songid != null">
+                and songid = #{songid}
+            </if>
+            <if test="songurl != null and songurl != ''">
+                and songurl = #{songurl}
+            </if>
+            <if test="singer != null and singer != ''">
+                and singer = #{singer}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="imageid != null">
+                and imageid = #{imageid}
+            </if>
+            <if test="songlisttype != null and songlisttype != ''">
+                and songlisttype = #{songlisttype}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="songid" useGeneratedKeys="true">
+        insert into song(songurl, singer, name, imageid, songlisttype, state)
+        values (#{songurl}, #{singer}, #{name}, #{imageid}, #{songlisttype}, #{state})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="songid" useGeneratedKeys="true">
+        insert into song(songurl, singer, name, imageid, songlisttype, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.songurl}, #{entity.singer}, #{entity.name}, #{entity.imageid}, #{entity.songlisttype}, #{entity.state})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="songid" useGeneratedKeys="true">
+        insert into song(songurl, singer, name, imageid, songlisttype, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.songurl}, #{entity.singer}, #{entity.name}, #{entity.imageid}, #{entity.songlisttype}, #{entity.state})
+        </foreach>
+        on duplicate key update
+        songurl = values(songurl),
+        singer = values(singer),
+        name = values(name),
+        imageid = values(imageid),
+        songlisttype = values(songlisttype),
+        state = values(state)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update song
+        <set>
+            <if test="songurl != null and songurl != ''">
+                songurl = #{songurl},
+            </if>
+            <if test="singer != null and singer != ''">
+                singer = #{singer},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="imageid != null">
+                imageid = #{imageid},
+            </if>
+            <if test="songlisttype != null and songlisttype != ''">
+                songlisttype = #{songlisttype},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+        </set>
+        where songid = #{songid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from song where songid = #{songid}
+    </delete>
+
+</mapper>
+

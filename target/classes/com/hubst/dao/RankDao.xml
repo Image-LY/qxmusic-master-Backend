@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hubst.dao.RankDao">
+
+    <resultMap type="com.hubst.entity.Rank" id="RankMap">
+        <result property="rankid" column="rankid" jdbcType="INTEGER"/>
+        <result property="rankname" column="rankname" jdbcType="VARCHAR"/>
+        <result property="rankimgid" column="rankimgid" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="rankContent.content1" column="rct1"/>
+        <result property="rankContent.content2" column="rct2"/>
+        <result property="rankContent.content3" column="rct3"/>
+        <result property="image.url" column="iurl"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="RankMap">
+        select
+          rankid, rankname, rankimgid, state
+        from rank
+        where rankid = #{rankid}
+    </select>
+
+    <select id="getAllListInfo" resultMap="RankMap">
+        select
+            rankid,rankimgid,r.state,
+            i.url iurl
+        from rank r,image i
+        where rankimgid = i.id
+          and rankid &lt;= 6
+          and r.state = '1'
+    </select>
+
+    <select id="queryByContentId" resultMap="RankMap">
+        select
+            r.rankid,r.rankname,rc.content1 rct1,content2 rct2,content3 rct3,rc.state,i.url iurl
+        from rank_content rc,`rank` r,music.image i
+        where  rc.rankcontid = r.rankcontid
+          and r.rankimgid = i.id
+          and rc.state = '1'
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="RankMap">
+        select
+          rankid, rankname, rankimgid, state
+        from rank
+        <where>
+            <if test="rankid != null">
+                and rankid = #{rankid}
+            </if>
+            <if test="rankname != null and rankname != ''">
+                and rankname = #{rankname}
+            </if>
+            <if test="rankimgid != null and rankimgid != ''">
+                and rankimgid = #{rankimgid}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from rank
+        <where>
+            <if test="rankid != null">
+                and rankid = #{rankid}
+            </if>
+            <if test="rankname != null and rankname != ''">
+                and rankname = #{rankname}
+            </if>
+            <if test="rankimgid != null and rankimgid != ''">
+                and rankimgid = #{rankimgid}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="rankid" useGeneratedKeys="true">
+        insert into rank(rankname, rankimgid, state)
+        values (#{rankname}, #{rankimgid}, #{state})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="rankid" useGeneratedKeys="true">
+        insert into rank(rankname, rankimgid, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.rankname}, #{entity.rankimgid}, #{entity.state})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="rankid" useGeneratedKeys="true">
+        insert into rank(rankname, rankimgid, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.rankname}, #{entity.rankimgid}, #{entity.state})
+        </foreach>
+        on duplicate key update
+        rankname = values(rankname),
+        rankimgid = values(rankimgid),
+        state = values(state)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update rank
+        <set>
+            <if test="rankname != null and rankname != ''">
+                rankname = #{rankname},
+            </if>
+            <if test="rankimgid != null and rankimgid != ''">
+                rankimgid = #{rankimgid},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+        </set>
+        where rankid = #{rankid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from rank where rankid = #{rankid}
+    </delete>
+
+</mapper>
+
