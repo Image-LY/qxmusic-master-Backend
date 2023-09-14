@@ -7,6 +7,6 @@
 
 ## 使用教程
 1. 运行music.sql创建数据库表
-2. 运行MusicStartApplication
+2. 连接数据库，运行MusicStartApplication
 3. 打开http://localhost/newdisk/1 测试部署是否成功
 4. 打开http://localhost/docs.html 查看接口文档
