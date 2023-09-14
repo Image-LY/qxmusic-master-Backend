@@ -42,7 +42,7 @@ public class Swagger2Config {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("QX音乐API接口文档")
-                .description("美容预约平台xAPI接口文档")
+                .description("...")
                 .termsOfServiceUrl("http://127.0.0.1:80")
                 .contact(new Contact("hubst","http://127.0.0.1:80","386048492@qq.com"))
                 .version("1.0")
